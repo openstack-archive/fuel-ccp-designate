@@ -1,0 +1,57 @@
+configs:
+  designate:
+    api_port:
+      cont: 9001
+      ingress: dns
+
+    debug: false
+    notification:
+      driver: messagingv2
+    # options, allows to configure services particularly
+    service:
+      central:
+        workers: 1
+        threads: 1000
+      api:
+        workers: 1
+        threads: 1000
+      mdns:
+        workers: 1
+        threads: 1000
+      agent:
+        workers: 1
+      zone_manager:
+        workers: 1
+        threads: 1000
+      pool_manager:
+        workers: 1
+        threads: 1000
+    domain_purge:
+      interval: 3600
+      batch_size: 100
+      time_threshold: 604800  # 7 days
+    username: designate
+    password: password
+    # to set specific pool, add dict "pool" with format:
+    # pool:
+    #   pool_id: <id>
+    #   nameservers:
+    #     - uuid: <uuid>
+    #       port: <port>
+    #       host: <host>
+    #   targets:
+    #     uuid: <uuid>
+    #     options: <options>
+    #     masters: <masters>
+    #     type: <type>
+    db:
+      username: designate
+      password: password
+      name:
+        pool_manager: designate_pool_manager
+        main_database: designate
+
+sources:
+  openstack/designate:
+    git_url: https://git.openstack.org/openstack/designate.git
+    git_ref: stable/newton

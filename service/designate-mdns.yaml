@@ -1,0 +1,17 @@
+dsl_version: 0.1.0
+service:
+  name: designate-mdns
+  containers:
+    - name: designate-mdns
+      image: designate-mdns
+      daemon:
+        dependencies:
+          - designate-api
+        files:
+          - designate-conf
+        command: designate-mdns --config-file /etc/designate/designate.conf
+
+files:
+  designate-conf:
+    path: /etc/designate/designate.conf
+    content: designate.conf.j2
