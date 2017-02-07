@@ -1,0 +1,142 @@
+########################
+## General Configuration
+########################
+
+[DEFAULT]
+verbose = true
+debug = {{ designate.debug }}
+use_syslog = false
+use_stderr = true
+
+notification_driver = {{ designate.notification_driver }}
+{% if designate.notification.topics is defined %}
+notification_topics = {{ designate.notification.topics }}
+{% endif %}
+
+
+{{ oslo_messaging[messaging.backend.rpc]('rpc_config') }}
+
+
+#--------------------
+# Keystone Middleware
+#--------------------
+[keystone_authtoken]
+auth_uri = {{ address('keystone', keystone.public_port, with_scheme=True) }}
+auth_url = {{ address('keystone', keystone.admin_port, with_scheme=True) }}
+project_domain_name = Default
+project_name = service
+user_domain_name = Default
+auth_type = password
+username = {{ designate.username }}
+password = {{ designate.password }}
+memcached_servers = {{ address("memcached", memcached.port) }}
+
+########################
+## Service Configuration
+########################
+#----------------
+# Central Service
+#----------------
+[service:central]
+workers = {{ designate.service.central.workers }}
+threads = {{ designate.service.central.threads }}
+
+#------------
+# API Service
+#------------
+[service:api]
+workers = {{ designate.service.api.workers }}
+threads = {{ designate.service.api.threads }}
+api_base_uri = http://{{ network_topology["private"]["address"] }}:{{ designate.api_port.cont }}/
+api_host = {{ network_topology["private"]["address"] }}
+api_port = {{ designate.api_port.cont }}
+auth_strategy = keystone
+enable_api_v1 = True
+enabled_extensions_v1 = diagnostics, quotas, reports, sync, touch
+enable_api_v2 = True
+enabled_extensions_v2 = quotas, reports
+
+#-------------
+# Sink Service
+#-------------
+[service:sink]
+enabled_notification_handlers = nova_fixed, neutron_floatingip
+
+#-------------
+# mDNS Service
+#-------------
+[service:mdns]
+workers = {{ designate.service.mdns.workers }}
+threads = {{ designate.service.mdns.threads }}
+
+#--------------
+# Agent Service
+#--------------
+[service:agent]
+workers = {{ designate.service.agent.workers }}
+
+#---------------------
+# Zone Manager Service
+#---------------------
+[service:zone_manager]
+workers = {{ designate.service.zone_manager.workers }}
+threads = {{ designate.service.zone_manager.threads }}
+
+#------------------------
+# Deleted domains purging
+#------------------------
+[zone_manager_task:domain_purge]
+interval = {{ designate.domain_purge.interval }}
+batch_size = {{ designate.domain_purge.batch_size }}
+time_threshold = {{ designate.domain_purge.threshold }}
+
+#---------------------
+# Pool Manager Service
+#---------------------
+[service:pool_manager]
+workers = {{ designate.service.pool_manager.workers }}
+threads = {{ designate.service.pool_manager.threads }}
+{% if designate.pool is defined %}
+pool_id = {{ designate.pool.pool_id }}
+{%- endif %}
+
+###################################
+## Pool Manager Cache Configuration
+###################################
+#------------------------------
+# SQLAlchemy Pool Manager Cache
+#------------------------------
+[pool_manager_cache:sqlalchemy]
+connection = mysql+pymysql://{{ designate.db.username }}:{{ designate.db.password }}@{{ address(service.database) }}/{{ designate.db.name.pool_manager }}
+
+########################
+## Storage Configuration
+########################
+#-------------------
+# SQLAlchemy Storage
+#-------------------
+[storage:sqlalchemy]
+connection = mysql+pymysql://{{ designate.db.username }}:{{ designate.db.password }}@{{ address(service.database) }}/{{ designate.db.name.main_database }}
+
+########################
+## Handler Configuration
+########################
+#-------------------
+# Nova Fixed Handler
+#-------------------
+[handler:nova_fixed]
+domain_id = default
+notification_topics = notifications
+control_exchange = 'neutron'
+format = '%(hostname)s.%(domain)s'
+
+#-------------------------
+# Neutron Floating Handler
+#-------------------------
+[handler:neutron_floatingip]
+domain_id = default
+notification_topics = notifications
+control_exchange = 'neutron'
+format = '%(hostname)s.%(domain)s'
+
+
