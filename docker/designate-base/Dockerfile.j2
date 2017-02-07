@@ -1,0 +1,16 @@
+FROM {{ image_spec("openstack-base") }}
+MAINTAINER {{ maintainer }}
+
+{{ copy_sources("openstack/designate", "/designate") }}
+
+RUN useradd --user-group -G microservices designate \
+    && /var/lib/microservices/venv/bin/pip install --upgrade /designate \
+    && mkdir -p /var/lib/designate /etc/designate /var/log/designate \
+    && cp -r /designate/etc/designate/* /etc/designate/ \
+    && mv /etc/designate/rootwrap.conf.sample /etc/designate/rootwrap.conf \
+    && chown -R designate:designate /var/log/designate /etc/designate /var/lib/designate \
+    && sed -i 's|^exec_dirs.*|exec_dirs=/var/lib/microservices/venv/bin,/sbin,/usr/sbin,/bin,/usr/bin,/usr/local/bin,/usr/local/sbin|g' /etc/designate/rootwrap.conf
+
+COPY designate_sudoers /etc/sudoers.d/designate_sudoers
+RUN chmod 750 /etc/sudoers.d \
+    && chmod 440 /etc/sudoers.d/designate_sudoers
