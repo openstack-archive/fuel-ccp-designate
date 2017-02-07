@@ -1,0 +1,67 @@
+dsl_version: 0.5.0
+service:
+  name: designate-api
+  ports:
+    - {{ designate.api_port }}
+  containers:
+    - name: designate-api
+      image: designate-api
+      pre:
+        - name: designate-main-db-create
+          dependencies:
+            - {{ service.database }}
+          type: single
+          command:
+            mysql -u root -p{{ db.root_password }} -h {{ address(service.database) }} -e "create database {{ designate.db.name.main_database }};
+            grant all privileges on {{ designate.db.name.main_database }}.* to '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}';"
+        - name: designate-syncdb
+          dependencies:
+            - designate-main-db-create
+          files:
+            - designate-conf
+          type: single
+          command: designate-manage --config-file /etc/designate/designate.conf database sync
+        - name: designate-user-create
+          dependencies:
+            - keystone-create-project
+          type: single
+          command: openstack user create --domain default --password {{ designate.password }} {{ designate.username }}
+        - name: designate-admin-role-add
+          dependencies:
+            - designate-user-create
+          type: single
+          command: openstack role add --project service --user {{ designate.username }} admin
+        - name: designate-service-create
+          dependencies:
+            - keystone-create-project
+          type: single
+          command: openstack service create --name designate --description "Designate Service" dns
+        - name: designate-public-endpoint-create
+          dependencies:
+            - designate-service-create
+          type: single
+          command: openstack endpoint create --region RegionOne dns public  {{ address('designate-api', designate.api_port, external=True, with_scheme=True) }}
+        - name: designate-internal-endpoint-create
+          dependencies:
+            - designate-service-create
+          type: single
+          command: openstack endpoint create --region RegionOne dns internal  {{ address('designate-api', designate.api_port, with_scheme=True) }}
+        - name: designate-admin-endpoint-create
+          dependencies:
+            - designate-service-create
+          type: single
+          command: openstack endpoint create --region RegionOne dns admin  {{ address('designate-api', designate.api_port, with_scheme=True) }}
+      daemon:
+        dependencies:
+          - "{{ messaging.dependencies[messaging.backend.rpc] }}"
+        files:
+          - designate-conf
+        command: designate-api --config-file /etc/designate/designate.conf
+
+files:
+  designate-conf:
+    path: /etc/designate/designate.conf
+    content: designate.conf.j2
+  api-paste:
+    path: /etc/designate/api-paste.ini
+    content: api-paste.ini.j2

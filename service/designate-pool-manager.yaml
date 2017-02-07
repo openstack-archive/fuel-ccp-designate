@@ -1,0 +1,32 @@
+dsl_version: 0.5.0
+service:
+  name: designate-pool-manager
+  containers:
+    - name: designate-pool-manager
+      image: designate-pool-manager
+      pre:
+        - name: designate-pool-manager-db-create
+          dependencies:
+            - {{ service.database }}
+          type: single
+          command:
+            mysql -u root -p{{ db.root_password }} -h {{ address(service.database) }} -e "create database {{ designate.db.name.pool_manager }};
+            grant all privileges on {{ designate.db.name.pool_manager }}.* to '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}';"
+        - name: designate-pool-sync
+          dependencies:
+            - designate-pool-manager-db-create
+          files:
+            - designate-conf
+          type: single
+          command: designate-manage --config-file /etc/designate/designate.conf pool-manager-cache sync
+      daemon:
+        dependencies:
+          - designate-api
+        files:
+          - designate-conf
+        command: designate-pool-manager --config-file /etc/designate/designate.conf
+
+files:
+  designate-conf:
+    path: /etc/designate/designate.conf
+    content: designate.conf.j2
