@@ -1,0 +1,1 @@
+designate ALL = (root) NOPASSWD: /var/lib/microservices/venv/bin/designate-rootwrap /etc/designate/rootwrap.conf *
