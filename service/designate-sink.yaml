@@ -1,0 +1,17 @@
+dsl_version: 0.5.0
+service:
+  name: designate-sink
+  containers:
+    - name: designate-sink
+      image: designate-sink
+      daemon:
+        dependencies:
+          - designate-api
+        files:
+          - designate-conf
+        command: designate-sink --config-file /etc/designate/designate.conf
+
+files:
+  designate-conf:
+    path: /etc/designate/designate.conf
+    content: designate.conf.j2
