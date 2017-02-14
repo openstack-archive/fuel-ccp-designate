@@ -108,7 +108,7 @@ pool_id = {{ designate.pool.pool_id }}
 # SQLAlchemy Pool Manager Cache
 #------------------------------
 [pool_manager_cache:sqlalchemy]
-connection = mysql+pymysql://{{ designate.db.username }}:{{ designate.db.password }}@{{ address(service.database) }}/{{ designate.db.name.pool_manager }}
+connection = mysql+pymysql://{{ designate.db.username }}:{{ designate.db.password }}@{{ address(service.database) }}/{{ designate.db.name.pool_manager }}{% if percona.tls.enabled %}?ssl_ca=/opt/ccp/etc/tls/ca.pem{% endif %}
 
 ########################
 ## Storage Configuration
@@ -117,7 +117,7 @@ connection = mysql+pymysql://{{ designate.db.username }}:{{ designate.db.passwor
 # SQLAlchemy Storage
 #-------------------
 [storage:sqlalchemy]
-connection = mysql+pymysql://{{ designate.db.username }}:{{ designate.db.password }}@{{ address(service.database) }}/{{ designate.db.name.main_database }}
+connection = mysql+pymysql://{{ designate.db.username }}:{{ designate.db.password }}@{{ address(service.database) }}/{{ designate.db.name.main_database }}{% if percona.tls.enabled %}?ssl_ca=/opt/ccp/etc/tls/ca.pem{% endif %}
 
 ########################
 ## Handler Configuration
