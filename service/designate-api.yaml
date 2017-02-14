@@ -13,7 +13,10 @@ service:
           type: single
           command:
             mysql -u root -p{{ db.root_password }} -h {{ address(service.database) }} -e "create database {{ designate.db.name.main_database }};
+            create user '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}'
+            {% if percona.tls.enabled and security.tls.enabled %} require ssl {% endif %};
             grant all privileges on {{ designate.db.name.main_database }}.* to '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}'
+            {% if percona.tls.enabled and security.tls.enabled %} require ssl {% endif %};"
         - name: designate-syncdb
           dependencies:
             - designate-main-db-create
