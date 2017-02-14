@@ -11,7 +11,10 @@ service:
           type: single
           command:
             mysql -u root -p{{ db.root_password }} -h {{ address(service.database) }} -e "create database {{ designate.db.name.pool_manager }};
+            create user '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}'
+            {% if percona.tls.enabled %} require ssl {% endif %};
             grant all privileges on {{ designate.db.name.pool_manager }}.* to '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}'
+            {% if percona.tls.enabled %} require ssl {% endif %};"
         - name: designate-pool-sync
           dependencies:
             - designate-pool-manager-db-create
