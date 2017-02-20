@@ -8,16 +8,23 @@ service:
         - name: designate-pool-manager-db-create
           dependencies:
             - {{ service.database }}
+            - designate-main-db-create
           type: single
           command:
             mysql -u root -p{{ db.root_password }} -h {{ address(service.database) }} -e "create database {{ designate.db.name.pool_manager }};
-            create user '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}'
-            {% if db.tls.enabled %} require ssl {% endif %};
             grant all privileges on {{ designate.db.name.pool_manager }}.* to '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}'
             {% if db.tls.enabled %} require ssl {% endif %};"
-        - name: designate-pool-sync
+        - name: designate-pool-update
           dependencies:
             - designate-pool-manager-db-create
+          files:
+            - pools
+            - designate-conf
+          type: single
+          command: designate-manage pool update --file /etc/designate/pools.yaml
+        - name: designate-pool-sync
+          dependencies:
+            - designate-pool-update
           files:
             - designate-conf
           type: single
@@ -33,3 +40,6 @@ files:
   designate-conf:
     path: /etc/designate/designate.conf
     content: designate.conf.j2
+  pools:
+    path: /etc/designate/pools.yaml
+    content: pools.yaml.j2
