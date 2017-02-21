@@ -1,0 +1,11 @@
+- name: default
+  description: CCP Fake Pool
+  attributes: {}
+
+  ns_records:
+    - hostname: {{ network_topology['private']['address'] }}
+      priority: 1
+
+  targets:
+    - type: fake
+      description: Fake Backend
