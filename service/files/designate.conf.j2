@@ -17,6 +17,14 @@ notification_topics = {{ designate.notification.topics.names }}
 {{ oslo_messaging[messaging.backend.rpc]('rpc_config') }}
 {{ oslo_messaging[messaging.backend.rpc]('notifications_config') }}
 
+rabbit_userid = {{ rabbitmq.user }}
+rabbit_password = {{ rabbitmq.password }}
+rabbit_hosts = {{ address("rabbitmq", rabbitmq.port) }}
+
+[oslo_messaging_rabbit]
+rabbit_userid = {{ rabbitmq.user }}
+rabbit_password = {{ rabbitmq.password }}
+rabbit_hosts = {{ address("rabbitmq", rabbitmq.port) }}
 
 #--------------------
 # Keystone Middleware
@@ -89,7 +97,7 @@ threads = {{ designate.service.zone_manager.threads }}
 [zone_manager_task:domain_purge]
 interval = {{ designate.domain_purge.interval }}
 batch_size = {{ designate.domain_purge.batch_size }}
-time_threshold = {{ designate.domain_purge.threshold }}
+time_threshold = {{ designate.domain_purge.time_threshold }}
 
 #---------------------
 # Pool Manager Service
