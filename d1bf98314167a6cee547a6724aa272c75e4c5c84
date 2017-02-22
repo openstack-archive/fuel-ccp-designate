@@ -1,0 +1,10 @@
+Code-Review+2: Proskurin Kirill <kproskurin@mirantis.com>
+Code-Review+1: Marek Zawadzki <mzawadzki@mirantis.com>
+Code-Review+2: Yuriy Taraday <yorik.sar@gmail.com>
+Workflow+1: Yuriy Taraday <yorik.sar@gmail.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Wed, 22 Feb 2017 14:36:41 +0000
+Reviewed-on: https://review.openstack.org/436392
+Project: openstack/fuel-ccp-designate
+Branch: refs/heads/master
