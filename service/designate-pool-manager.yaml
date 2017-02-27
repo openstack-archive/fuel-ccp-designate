@@ -7,11 +7,11 @@ service:
       pre:
         - name: designate-pool-manager-db-create
           dependencies:
-            - {{ service.database }}
+            - database
             - designate-main-db-create
           type: single
           command:
-            mysql -u root -p{{ db.root_password }} -h {{ address(service.database) }} -e "create database {{ designate.db.name.pool_manager }};
+            mysql -u root -p{{ db.root_password }} -h {{ address('database') }} -e "create database {{ designate.db.name.pool_manager }};
             grant all privileges on {{ designate.db.name.pool_manager }}.* to '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}'
             {% if db.tls.enabled %} require ssl {% endif %};"
         - name: designate-pool-update
