@@ -9,10 +9,10 @@ service:
       pre:
         - name: designate-main-db-create
           dependencies:
-            - {{ service.database }}
+            - database
           type: single
           command:
-            mysql -u root -p{{ db.root_password }} -h {{ address(service.database) }} -e "create database {{ designate.db.name.main_database }};
+            mysql -u root -p{{ db.root_password }} -h {{ address('database') }} -e "create database {{ designate.db.name.main_database }};
             create user '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}'
             {% if db.tls.enabled %} require ssl {% endif %};
             grant all privileges on {{ designate.db.name.main_database }}.* to '{{ designate.db.username }}'@'%' identified by '{{ designate.db.password }}'
