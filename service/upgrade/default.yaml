@@ -1,0 +1,57 @@
+upgrade:
+  name: upgrade-designate
+  image: designate-upgrade
+  steps:
+    - name: backup
+      command: /opt/ccp/bin/backup.sh
+      files:
+        - backup-sh
+      volumes:
+        - name: backup-dir
+          path: /var/ccp/backup/designate
+          type: host
+          readOnly: false
+      topology_key: backup
+    - name: kill-services
+      type: kill-services
+    - name: designate-api-syncdb
+      files:
+        - designate-conf
+      type: single
+      command: designate-manage --config-file /etc/designate/designate.conf database sync
+    - name: start-designate-central
+      type: rolling-upgrade
+      services:
+        - designate-api
+        - designate-central 
+    - name: designate-pool-update
+      files:
+        - pools
+        - designate-conf
+      type: single
+      command: designate-manage pool update --file /etc/designate/pools.yaml
+    - name: designate-pool-sync
+      dependencies:
+        - designate-pool-manager-db-create
+      files:
+        - designate-conf
+      type: single
+      command: designate-manage --config-file /etc/designate/designate.conf pool-manager-cache sync
+    - name: start-other-services
+      type: rolling-upgrade
+      services:
+        - designate-pool-manager
+        - designate-mdns
+        - designate-zone-manager 
+files:
+  designate-conf:
+    path: /etc/designate/designate.conf
+    content: designate.conf.j2
+  pools:
+    path: /etc/designate/pools.yaml
+    content: pools.yaml.j2
+  backup-sh:
+    path: /opt/ccp/bin/backup.sh
+    content: backup.sh.j2
+    perm: "500"
+
