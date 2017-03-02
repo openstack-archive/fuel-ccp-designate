@@ -29,16 +29,7 @@ rabbit_hosts = {{ address("rabbitmq", rabbitmq.port) }}
 #--------------------
 # Keystone Middleware
 #--------------------
-[keystone_authtoken]
-auth_uri = {{ address('keystone', keystone.public_port, with_scheme=True) }}
-auth_url = {{ address('keystone', keystone.admin_port, with_scheme=True) }}
-project_domain_name = Default
-project_name = service
-user_domain_name = Default
-auth_type = password
-username = {{ designate.username }}
-password = {{ designate.password }}
-memcached_servers = {{ address("memcached", memcached.port) }}
+{{ keystone_authtoken.keystone_authtoken(designate.username, designate.password) }}
 
 ########################
 ## Service Configuration

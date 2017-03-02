@@ -26,14 +26,15 @@ service:
           command: designate-manage --config-file /etc/designate/designate.conf database sync
         - name: designate-user-create
           dependencies:
-            - keystone-create-project
+            - keystone-create-domain
           type: single
-          command: openstack user create --domain default --password {{ designate.password }} {{ designate.username }}
+          command: openstack user create --domain  {{ service_account.domain }} --password {{ designate.password }} {{ designate.username }}
         - name: designate-admin-role-add
           dependencies:
             - designate-user-create
+            - keystone-create-project
           type: single
-          command: openstack role add --project service --user {{ designate.username }} admin
+          command: openstack role add --project {{ service_account.project }} --user {{ designate.username }} admin
         - name: designate-service-create
           dependencies:
             - keystone-create-project
