@@ -1,5 +1,7 @@
 configs:
   designate:
+    tls:
+      enabled: true
     api_port:
       cont: 9001
       ingress: dns
