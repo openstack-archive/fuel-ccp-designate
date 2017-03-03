@@ -62,6 +62,17 @@ service:
           - designate-conf
           - api-paste
         command: designate-api --config-file /etc/designate/designate.conf
+    # {% if designate.tls.enabled %}
+    - name: nginx-heat-api
+      image: nginx
+      daemon:
+        files:
+          - upstreams
+          - servers
+          - server-cert
+          - server-key
+        command: nginx
+    # {% endif %}
 
 files:
   designate-conf:
@@ -70,3 +81,21 @@ files:
   api-paste:
     path: /etc/designate/api-paste.ini
     content: api-paste.ini.j2
+  # {% if designate.tls.enabled %}
+  servers:
+    path: /etc/nginx/conf.d/servers.conf
+    content: nginx-api.conf.j2
+    perm: "0400"
+  upstreams:
+    path: /etc/nginx/conf.d/upstreams.conf
+    content: upstreams.conf.j2
+    perm: "0400"
+  server-cert:
+    path: /opt/ccp/etc/tls/server-cert.pem
+    content: server-cert.pem.j2
+    perm: "0400"
+  server-key:
+    path: /opt/ccp/etc/tls/server-key.pem
+    content: server-key.pem.j2
+    perm: "0400"
+  # {% endif %}
