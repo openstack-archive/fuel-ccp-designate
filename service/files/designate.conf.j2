@@ -47,14 +47,24 @@ threads = {{ designate.service.central.threads }}
 [service:api]
 workers = {{ designate.service.api.workers }}
 threads = {{ designate.service.api.threads }}
+{% if designate.tls.enabled %}
+api_base_uri = https://{{ network_topology["private"]["address"] }}:{{ designate.api_port.cont }}/
+api_host = 127.0.0.1
+{% else %}
 api_base_uri = http://{{ network_topology["private"]["address"] }}:{{ designate.api_port.cont }}/
 api_host = {{ network_topology["private"]["address"] }}
+{% endif %}
 api_port = {{ designate.api_port.cont }}
 auth_strategy = keystone
 enable_api_v1 = True
 enabled_extensions_v1 = diagnostics, quotas, reports, sync, touch
 enable_api_v2 = True
 enabled_extensions_v2 = quotas, reports
+
+{% if designate.tls.enabled %}
+[network_api:neutron]
+ca_certificates_file = /opt/ccp/etc/tls/ca.pem
+{% endif %}
 
 #-------------
 # Sink Service
