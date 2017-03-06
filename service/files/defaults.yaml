@@ -33,6 +33,9 @@ configs:
       interval: 3600
       batch_size: 100
       time_threshold: 604800  # 7 days
+
+secret_configs:
+  designate:
     username: designate
     password: password
     db:
