@@ -1,0 +1,27 @@
+---
+- name: default
+  description: CCP BIND Pool
+  attributes: {}
+
+  ns_records:
+    - hostname: ns.ccp.org.
+      priority: 1
+
+  nameservers:
+    - host: {{ network_topology["private"]["address"] }}
+      port: {{ designate.bind_port.cont }}
+
+  targets:
+    - type: bind9
+      description: BIND Instance
+
+      masters:
+        - host: {{ network_topology["private"]["address"] }}
+          port: {{ designate.mdns_port.cont }}
+
+      options:
+        host: {{ network_topology["private"]["address"] }}
+        port: {{ designate.bind_port.cont }}
+        rndc_host: {{ network_topology["private"]["address"] }}
+        rndc_port: {{ designate.rndc_port.cont }}
+        rndc_key_file: /etc/bind/rndc.key

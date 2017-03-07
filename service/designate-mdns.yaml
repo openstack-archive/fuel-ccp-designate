@@ -1,6 +1,11 @@
 dsl_version: 0.5.0
 service:
   name: designate-mdns
+  ports:
+    - {{ designate.bind_port }}
+    - {{ designate.worker_port }}
+    - {{ designate.mdns_port }}
+    - {{ designate.rndc_port }}
   containers:
     - name: designate-mdns
       image: designate-mdns
@@ -10,8 +15,64 @@ service:
         files:
           - designate-conf
         command: designate-mdns --config-file /etc/designate/designate.conf
-
+    - name: designate-backend-bind9
+      image: designate-backend-bind9
+      daemon:
+        files:
+          - named-conf-options
+          - rndc-conf
+          - named-conf
+          - rndc-key
+        command: /usr/sbin/named -g -c /etc/bind/named.conf -u bind
+    - name: designate-worker
+      image: designate-worker
+      pre:
+        - name: designate-pool-update
+          # {% if designate.backend == "bind9" %}
+          dependencies:
+            - designate-backend-bind9
+          # {% endif %}
+          files:
+            # {% if designate.backend == "bind9" %}
+            - bind9-pools
+            # {% else %}
+            - fake-pools
+            # {% endif %}
+            - designate-conf
+          type: local
+          command: designate-manage pool update --file /etc/designate/pools.yaml
+      daemon:
+        dependencies:
+          - designate-api
+        files:
+          # {% if designate.backend == "bind9" %}
+          - bind9-pools
+          # {% else %}
+          - fake-pools
+          # {% endif %}
+          - designate-conf
+          - rndc-conf
+          - rndc-key
+        command: designate-worker --config-file /etc/designate/designate.conf
 files:
+  rndc-conf:
+    path: /etc/bind/rndc.conf
+    content: rndc.conf.j2
+  named-conf-options:
+    path: /etc/bind/named.conf.options
+    content: named.conf.options.j2
+  named-conf:
+    path: /etc/bind/named.conf
+    content: named.conf.j2
+  rndc-key:
+    path: /etc/bind/rndc.key
+    content: rndc.key.j2
   designate-conf:
     path: /etc/designate/designate.conf
     content: designate.conf.j2
+  fake-pools:
+    path: /etc/designate/pools.yaml
+    content: pools.yaml.j2
+  bind9-pools:
+    path: /etc/designate/pools.yaml
+    content: bind9-pools.yaml.j2
