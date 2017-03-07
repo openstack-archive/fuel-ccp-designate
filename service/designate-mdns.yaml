@@ -1,6 +1,8 @@
 dsl_version: 0.5.0
 service:
   name: designate-mdns
+  ports:
+    - {{ designate.mdns_port }}
   containers:
     - name: designate-mdns
       image: designate-mdns

@@ -55,6 +55,8 @@ enable_api_v1 = True
 enabled_extensions_v1 = diagnostics, quotas, reports, sync, touch
 enable_api_v2 = True
 enabled_extensions_v2 = quotas, reports
+enable_api_admin = True
+listen = {{ address("designate-api", designate.api_port) }}
 
 #-------------
 # Sink Service
@@ -68,12 +70,17 @@ enabled_notification_handlers = nova_fixed, neutron_floatingip
 [service:mdns]
 workers = {{ designate.service.mdns.workers }}
 threads = {{ designate.service.mdns.threads }}
+all_tcp = True
 
 #--------------
 # Agent Service
 #--------------
 [service:agent]
 workers = {{ designate.service.agent.workers }}
+
+[service:worker]
+enabled = True
+notify = True
 
 #---------------------
 # Zone Manager Service
@@ -99,6 +106,9 @@ threads = {{ designate.service.pool_manager.threads }}
 {% if designate.pool is defined %}
 pool_id = {{ designate.pool.pool_id }}
 {%- endif %}
+periodic_sync_interval = 1800
+periodic_recovery_interval = 120
+
 
 ###################################
 ## Pool Manager Cache Configuration
@@ -138,5 +148,4 @@ domain_id = default
 notification_topics = notifications
 control_exchange = 'neutron'
 format = '%(hostname)s.%(domain)s'
-
 
