@@ -1,0 +1,8 @@
+include "/etc/bind/rndc.key";
+
+options {
+    default-key "rndc-key";
+    default-server {{ network_topology["private"]["address"] }};
+    default-port {{ designate.rndc_port.cont }};
+};
+
