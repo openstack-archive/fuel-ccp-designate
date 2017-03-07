@@ -3,13 +3,21 @@ configs:
     api_port:
       cont: 9001
       ingress: dns
-
-    debug: false
+    mdns_port:
+      cont: 5354
+    rndc_port:
+      cont: 953
+    bind_port:
+      cont: 53
+    worker_port:
+      cont: 5358
+    debug: true
     notification:
       driver: noop
       topics:
         enabled: false
         names: changeme
+    backend: bind9
     # options, allows to configure services particularly
     service:
       central:

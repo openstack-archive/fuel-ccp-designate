@@ -12,5 +12,5 @@ RUN useradd --user-group -G microservices designate \
     && sed -i 's|^exec_dirs.*|exec_dirs=/var/lib/microservices/venv/bin,/sbin,/usr/sbin,/bin,/usr/bin,/usr/local/bin,/usr/local/sbin|g' /etc/designate/rootwrap.conf
 
 COPY designate_sudoers /etc/sudoers.d/designate_sudoers
-RUN chmod 750 /etc/sudoers.d \
+RUN chmod 750 /etc/sudoers.d /etc/designate/rootwrap.d/ \
     && chmod 440 /etc/sudoers.d/designate_sudoers
