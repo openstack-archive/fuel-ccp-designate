@@ -1,0 +1,21 @@
+---
+- name: default
+  description: Agent Pool
+  attributes: {}
+
+  ns_records:
+    - hostname: ns.ccp.org
+      priority: 1
+
+  targets:
+    - type: agent
+      description: Agent Backend
+      
+      masters:
+        - host: {{ address("designate-mdns") }}
+          port: {{ designate.mdns_port.cont }}
+     
+      options:
+        host: {{ address("designate-agent") }}
+        port: {{ designate.agent_port.cont }}
+

@@ -1,0 +1,11 @@
+actions:
+  - name: backend-agent-activate
+    image: designate-pool-manager
+    dependencies:
+      - designate-pool-manager
+    files:
+      - path: /etc/designate/agent-pools.yaml
+        content: agent-pools.yaml.j2
+      - path: /etc/designate/designate.conf
+        content: designate.conf.j2
+    command: designate-manage pool update --file /etc/designate/agent-pools.yaml

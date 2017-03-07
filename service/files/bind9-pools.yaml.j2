@@ -1,0 +1,27 @@
+---
+- name: default
+  description: DevStack BIND Pool
+  attributes: {}
+
+  ns_records:
+    - hostname: ns.ccp.org.
+      priority: 1
+
+  nameservers:
+    - host: {{ address("designate-backend-bind9") | gethostbyname }}
+      port: 53
+
+  targets:
+    - type: bind9
+      description: BIND Instance
+
+      masters:
+        - host: {{ address("designate-mdns") | gethostbyname }}
+          port: 5354
+
+      options:
+        host: {{ address("designate-backend-bind9") | gethostbyname }}
+        port: 53
+        rndc_host: {{ address("designate-backend-bind9") | gethostbyname }}
+        rndc_port: {{ designate.rndc_port.cont }}
+        rndc_key_file: /etc/bind/rndc.key

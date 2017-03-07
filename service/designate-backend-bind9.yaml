@@ -1,0 +1,35 @@
+dsl_version: 0.5.0
+service:
+  name: designate-backend-bind9
+  ports:
+    - cont: 53
+    - cont: 953
+  containers:
+    - name: designate-backend-bind9
+      image: designate-backend-bind9
+      #pre:
+        #- name: rndc-confgen
+        #  files:
+        #    - rndc-conf
+        #  type: single
+        #  command: rndc-confgen -c /etc/bind/rndc.key -r /dev/random
+      daemon:
+        files:
+          - named-conf-options
+          - rndc-conf
+          - named-conf
+          - rndc-key
+        command: /usr/sbin/named -g -c /etc/bind/named.conf -u bind
+files:
+  rndc-conf:
+    path: /etc/bind/rndc.conf
+    content: rndc.conf.j2
+  named-conf-options:
+    path: /etc/bind/named.conf.options
+    content: named.conf.options.j2
+  named-conf:
+    path: /etc/bind/named.conf
+    content: named.conf.j2
+  rndc-key:
+    path: /etc/bind/rndc.key
+    content: rndc.key.j2

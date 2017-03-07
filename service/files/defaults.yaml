@@ -3,8 +3,13 @@ configs:
     api_port:
       cont: 9001
       ingress: dns
-
-    debug: false
+    mdns_port:
+      cont: 5354
+    rndc_port:
+      cont: 953
+    agent_port:
+      cont: 5358
+    debug: true
     notification:
       driver: noop
       topics:

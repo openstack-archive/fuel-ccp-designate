@@ -1,0 +1,19 @@
+FROM {{ image_spec("designate-base") }}
+MAINTAINER {{ maintainer }}
+
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+       --no-install-suggests \
+       bind9 iptables
+
+RUN mkdir -p /var/run/named /etc/bind /etc/sysconfig/ \
+    && chmod 775 /var/run/named \
+    && chown root:bind /var/run/named /etc/sysconfig
+
+RUN echo "-A INPUT -p udp -m udp --dport 53 -j ACCEPT" > /etc/sysconfig/iptables
+
+RUN echo "-A INPUT -m state --state NEW -m tcp -p tcp --dport 53 -j ACCEPT" >> /etc/sysconfig/iptables
+
+RUN echo "-A INPUT -m state --state NEW -m udp -p udp --dport 53 -j ACCEPT" >> /etc/sysconfig/iptables
+
+RUN apt-get clean

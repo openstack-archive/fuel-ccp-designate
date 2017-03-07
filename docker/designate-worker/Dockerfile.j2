@@ -3,10 +3,10 @@ MAINTAINER {{ maintainer }}
 
 #mysql-client only for provisioning need to be removed later
 RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends mysql-client bind9 \
+    && apt-get install -y --no-install-recommends bind9 \
     && apt-get clean \
     && mkdir -p /etc/bind \
     && chown -R designate:designate /etc/bind
 
-USER designate
+#USER designate
 

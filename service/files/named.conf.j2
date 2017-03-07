@@ -1,0 +1,12 @@
+include "/etc/bind/named.conf.options";
+include "/etc/bind/named.conf.local";
+include "/etc/bind/named.conf.default-zones";
+include "/etc/bind/rndc.key";
+
+controls {
+    inet * port 953
+    allow { any; } keys { "rndc-key"; };
+    inet * port 53
+    allow { any; } keys { "rndc-key"; };
+};
+

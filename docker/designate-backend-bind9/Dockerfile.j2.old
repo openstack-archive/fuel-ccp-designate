@@ -1,0 +1,10 @@
+FROM {{ image_spec("base-tools") }}
+MAINTAINER {{ maintainer }}
+
+RUN apt-get install -y --no-install-recommends bind9 \
+    && usermod -a -G microservices bind \
+    && mkdir -p /etc/bind /var/run/named /var/cache/bind \
+    && chown -R bind: /var/run/named /etc/bind /var/cache/bind /usr/sbin/named \
+    && chmod 775 /var/run/named /etc/bind /var/cache/bind /usr/sbin/named
+
+#USER bind

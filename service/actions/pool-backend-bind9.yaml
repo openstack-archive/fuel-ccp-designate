@@ -1,0 +1,12 @@
+actions:
+  - name: backend-bind9-activate
+    image: designate-worker
+    dependencies:
+      - designate-worker
+      - designate-backend-bind9
+    files:
+      - path: /etc/designate/bind9-pools.yaml
+        content: bind9-pools.yaml.j2
+      - path: /etc/designate/designate.conf
+        content: designate.conf.j2
+    command: designate-manage pool update --file /etc/designate/bind9-pools.yaml
