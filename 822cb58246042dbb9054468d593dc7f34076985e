@@ -1,0 +1,9 @@
+Code-Review+2: Andrey Pavlov <apavlov@mirantis.com>
+Code-Review+2: Proskurin Kirill <kproskurin@mirantis.com>
+Workflow+1: Proskurin Kirill <kproskurin@mirantis.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 21 Mar 2017 10:44:40 +0000
+Reviewed-on: https://review.openstack.org/442421
+Project: openstack/fuel-ccp-designate
+Branch: refs/heads/master
