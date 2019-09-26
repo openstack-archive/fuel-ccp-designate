@@ -1,8 +1,0 @@
-FROM {{ image_spec("designate-base") }}
-MAINTAINER {{ maintainer }}
-
-RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends bind9 \
-    && apt-get clean \
-    && mkdir -p /etc/bind \
-    && chown -R designate:designate /etc/bind
